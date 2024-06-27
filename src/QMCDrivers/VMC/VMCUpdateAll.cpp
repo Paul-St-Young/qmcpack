@@ -52,6 +52,7 @@ void VMCUpdateAll::advanceWalker(Walker_t& thisWalker, bool recompute)
   for (int iter = 0; iter < nSubSteps; ++iter)
   { // make a few Monte-Carlo steps to decorrelate samples without calculating observables
     makeGaussRandomWithEngine(deltaR, RandomGen); // fill deltaR
+    if (ndim < 3) for (int iat = 0; iat < deltaR.size(); ++iat) deltaR[iat][2] = 0;
     updated = false;
     if (UseDrift)
     {

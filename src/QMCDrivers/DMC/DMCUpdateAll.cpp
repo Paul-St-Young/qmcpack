@@ -48,6 +48,7 @@ void DMCUpdateAllWithRejection::advanceWalker(Walker_t& thisWalker, bool recompu
   RealType nodecorr = setScaledDriftPbyPandNodeCorr(Tau, MassInvP, W.G, drift);
   //RealType nodecorr = setScaledDriftPbyPandNodeCorr(m_tauovermass,W.G,drift);
   makeGaussRandomWithEngine(deltaR, RandomGen);
+  if (ndim < 3) for (int iat = 0; iat < deltaR.size(); ++iat) deltaR[iat][2] = 0;
   //save old local energy
   RealType eold        = thisWalker.Properties(WP::LOCALENERGY);
   RealType enew        = eold;
@@ -156,6 +157,7 @@ void DMCUpdateAllWithKill::advanceWalker(Walker_t& thisWalker, bool recompute)
   RealType nodecorr = setScaledDriftPbyPandNodeCorr(Tau, MassInvP, W.G, drift);
   //create a 3N-Dimensional Gaussian with variance=1
   makeGaussRandomWithEngine(deltaR, RandomGen);
+  if (ndim < 3) for (int iat = 0; iat < deltaR.size(); ++iat) deltaR[iat][2] = 0;
   //if(!W.makeMoveAllParticlesWithDrift(thisWalker,drift,deltaR, m_sqrttau))
   if (!W.makeMoveAllParticlesWithDrift(thisWalker, drift, deltaR, SqrtTauOverMass))
   {

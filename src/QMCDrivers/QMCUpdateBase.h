@@ -276,6 +276,8 @@ protected:
   const DriftModifierBase* DriftModifier;
   ///estimator
   EstimatorManagerBase* Estimators;
+  ///number of spatial dimensions
+  const size_t ndim;
   ///parameters
   ParameterSet myParams;
   ///1/Mass per species

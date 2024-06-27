@@ -47,6 +47,7 @@ QMCUpdateBase::QMCUpdateBase(MCWalkerConfiguration& w,
       branchEngine(0),
       DriftModifier(0),
       Estimators(0),
+      ndim(w.getLattice().ndim),
       initWalkers_timer_(createGlobalTimer("QMCUpdateBase::WalkerInit", timer_level_medium))
 {
   setDefaults();
@@ -68,6 +69,7 @@ QMCUpdateBase::QMCUpdateBase(MCWalkerConfiguration& w,
       branchEngine(0),
       DriftModifier(0),
       Estimators(0),
+      ndim(w.getLattice().ndim),
       initWalkers_timer_(createGlobalTimer("QMCUpdateBase::WalkerInit", timer_level_medium))
 {
   setDefaults();
