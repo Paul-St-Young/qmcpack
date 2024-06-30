@@ -26,7 +26,8 @@ PairCorrEstimator::PairCorrEstimator(ParticleSet& elns, std::string& sources)
     : Dmax(10.),
       Delta(0.5),
       num_species(2),
-      d_aa_ID_(elns.addTable(elns, DTModes::NEED_FULL_TABLE_ON_HOST_AFTER_DONEPBYP))
+      d_aa_ID_(elns.addTable(elns, DTModes::NEED_FULL_TABLE_ON_HOST_AFTER_DONEPBYP)),
+      ndim(elns.getLattice().ndim)
 {
   update_mode_.set(COLLECTABLE, 1);
   num_species = elns.groups();
@@ -40,6 +41,7 @@ PairCorrEstimator::PairCorrEstimator(ParticleSet& elns, std::string& sources)
   {
     Dmax   = elns.getLattice().WignerSeitzRadius;
     Volume = elns.getLattice().Volume;
+    if (ndim < 3) Volume /= elns.getLattice().R(2,2);
   }
   else // Open BC's
     Volume = 1.0;
@@ -250,7 +252,7 @@ void PairCorrEstimator::set_norm_factor()
      with the same number density
   */
   RealType r                 = 0.;
-  const RealType ftpi        = 4. / 3 * M_PI;
+  const RealType ftpi        = 2*(ndim-1) * M_PI / ndim;
   const RealType N_tot_pairs = N_e * (N_e - 1) / 2;
   for (int i = 0; i < NumBins; i++)
   {
@@ -261,7 +263,7 @@ void PairCorrEstimator::set_norm_factor()
     RealType rho = N_tot_pairs / Volume;
 
     // Volume of spherical shell of thickness Delta
-    RealType bin_volume = ftpi * (std::pow(r + Delta, 3) - std::pow(r, 3));
+    RealType bin_volume = ftpi * (std::pow(r + Delta, ndim) - std::pow(r, ndim));
 
     // Expected number of pairs of particles separated by distance r assuming
     // they are uniformly randomly distributed (ideal gas-like)

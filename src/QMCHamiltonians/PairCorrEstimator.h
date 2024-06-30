@@ -81,6 +81,8 @@ private:
   std::vector<RealType> n_vec;
   // AA table ID
   const int d_aa_ID_;
+  // number of spatial dimensions
+  const size_t ndim;
   /////data
   //Matrix<RealType> gof_r;
   ///prefix of each gof_r
