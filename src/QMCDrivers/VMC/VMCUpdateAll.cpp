@@ -114,6 +114,8 @@ void VMCUpdateAll::advanceWalker(Walker_t& thisWalker, bool recompute)
                            eloc);               // update thisWalker::Properties[WP::LOGPSI,WP::SIGN,WP::LOCALENERGY]
   H.auxHevaluate(W, thisWalker);                // update auxiliary observables, i.e. fill H::Observables
   H.saveProperty(thisWalker.getPropertyBase()); // copy H::Observables to thisWalker::Properties
+  if(wlog_collector)
+    wlog_collector->collect(thisWalker,W,Psi,H);
 }
 
 } // namespace qmcplusplus
