@@ -194,6 +194,8 @@ void SODMCUpdatePbyPWithRejectionFast::advanceWalker(Walker_t& thisWalker, bool 
   nReject += nRejectTemp;
 
   setMultiplicity(thisWalker);
+  if(wlog_collector)
+    wlog_collector->collect(thisWalker,W,Psi,H);
 }
 
 } // namespace qmcplusplus

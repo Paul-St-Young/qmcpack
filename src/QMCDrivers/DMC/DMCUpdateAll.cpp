@@ -130,6 +130,8 @@ void DMCUpdateAllWithRejection::advanceWalker(Walker_t& thisWalker, bool recompu
     ++nReject;
 
   setMultiplicity(thisWalker);
+  if(wlog_collector)
+    wlog_collector->collect(thisWalker,W,Psi,H);
 }
 
 /*
@@ -216,5 +218,7 @@ void DMCUpdateAllWithKill::advanceWalker(Walker_t& thisWalker, bool recompute)
     ++nReject;
 
   setMultiplicity(thisWalker);
+  if(wlog_collector)
+    wlog_collector->collect(thisWalker,W,Psi,H);
 }
 } // namespace qmcplusplus
