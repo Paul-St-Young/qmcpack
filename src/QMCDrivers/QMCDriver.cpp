@@ -452,6 +452,10 @@ bool QMCDriver::putQMCInfo(xmlNodePtr cur)
       {
         ResetRandom = true;
       }
+      else if (cname == "walkerlogs")
+      {
+        putWalkerLogs(tcur);
+      }
       tcur = tcur->next;
     }
   }
