@@ -30,22 +30,34 @@ WalkerLogManager::WalkerLogManager(WalkerLogInput& inp, bool allow_logs, std::st
 
   if (state.logs_active)
   {
+    // retrieve input data
+    state.step_period   = inp.get<int>("step_period");
+    state.verbose       = inp.get<bool>("verbose");
+
+    write_particle_data = inp.get<bool>("particle");
+    state.write_position  = inp.get<bool>("position") && write_particle_data;
+    state.write_gradient  = inp.get<bool>("gradient") && write_particle_data;
+    state.write_laplacian = inp.get<bool>("laplacian") && write_particle_data;
+
+    bool quantiles      = inp.get<bool>("quantiles");
+    write_min_data      = inp.get<bool>("min") && quantiles;
+    write_max_data      = inp.get<bool>("max") && quantiles;
+    write_med_data      = inp.get<bool>("median") && quantiles;
+
     if (Concurrency::getWorkerId() == 0)
     {
       app_log() << "\n  WalkerLogManager::put() " << std::endl;
       app_log() << "    logs requested      : " << logs_requested << std::endl;
       app_log() << "    driver allows logs  : " << driver_allows_logs << std::endl;
       app_log() << "    logs active         : " << state.logs_active << std::endl;
+      if (write_particle_data)
+      {
+        app_log() << "    write position : " << state.write_position << std::endl;
+        app_log() << "    write gradient : " << state.write_gradient << std::endl;
+        app_log() << "    write laplacian : " << state.write_laplacian << std::endl;
+      }
       app_log() << std::endl;
     }
-    // retrieve input data
-    state.step_period   = inp.get<int>("step_period");
-    state.verbose       = inp.get<bool>("verbose");
-    bool quantiles      = inp.get<bool>("quantiles");
-    write_particle_data = inp.get<bool>("particle");
-    write_min_data      = inp.get<bool>("min") && quantiles;
-    write_max_data      = inp.get<bool>("max") && quantiles;
-    write_med_data      = inp.get<bool>("median") && quantiles;
   }
 
   // label min energy walker buffers for HDF file write

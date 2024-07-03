@@ -36,6 +36,9 @@ struct WalkerLogState
   int step_period = 1;
   /// controls verbosity of log file writes
   bool verbose = false;
+  bool write_position = true;
+  bool write_gradient = true;
+  bool write_laplacian = true;
 };
 
 

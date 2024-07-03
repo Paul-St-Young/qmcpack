@@ -26,11 +26,13 @@ struct WalkerLogInput : public InputSection
   WalkerLogInput(xmlNodePtr cur)
   {
     section_name   = "walkerlogs";
-    attributes     = {"step_period", "particle", "min", "max", "median", "quantiles", "verbose"};
+    attributes     = {"step_period", "particle", "min", "max", "median", "quantiles", "verbose", "position", "gradient", "laplacian"};
     integers       = {"step_period"};
-    bools          = {"particle", "min", "max", "median", "quantiles", "verbose"};
-    default_values = {{"step_period", int(1)}, {"particle", bool(false)}, {"min", bool(true)},     {"max", bool(true)},
-                      {"median", bool(true)},  {"quantiles", bool(true)}, {"verbose", bool(false)}};
+    bools          = {"particle", "min", "max", "median", "quantiles", "verbose", "position", "gradient", "laplacian"};
+    default_values = {{"step_period", int(1)}, {"particle", bool(false)}, {"min", bool(true)}, {"max", bool(true)},
+                      {"median", bool(true)},  {"quantiles", bool(true)}, {"verbose", bool(false)},
+                      {"position", bool(true)}, {"gradient", bool(true)}, {"laplacian", bool(true)},
+                     };
     present        = cur != NULL;
     if (present)
       readXML(cur);

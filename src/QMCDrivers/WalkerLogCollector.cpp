@@ -73,11 +73,14 @@ void WalkerLogCollector::collect(const MCPWalker& walker,
   size_t nparticles = walker.R.size();
   size_t ndim       = walker.R[0].size();
   //   per-particle positions (walker.R)
-  Rtmp.resize(nparticles, ndim);
-  for (size_t p = 0; p < nparticles; ++p)
-    for (size_t d = 0; d < ndim; ++d)
-      Rtmp(p, d) = (WLog::Real)walker.R[p][d];
-  bar.collect("R", Rtmp);
+  if (state_.write_position)
+  {
+    Rtmp.resize(nparticles, ndim);
+    for (size_t p = 0; p < nparticles; ++p)
+      for (size_t d = 0; d < ndim; ++d)
+        Rtmp(p, d) = (WLog::Real)walker.R[p][d];
+    bar.collect("R", Rtmp);
+  }
   //   per-particle "spin" (walker.spins)
   if (pset.isSpinor())
   {
@@ -86,17 +89,23 @@ void WalkerLogCollector::collect(const MCPWalker& walker,
       Stmp(p) = (WLog::Real)walker.spins[p];
     bar.collect("S", Stmp);
   }
-  //   per-particle gradient(log(psi)) (pset.G)
-  Gtmp.resize(nparticles, ndim);
-  for (size_t p = 0; p < nparticles; ++p)
-    for (size_t d = 0; d < ndim; ++d)
-      Gtmp(p, d) = (WLog::PsiVal)pset.G[p][d];
-  bar.collect("G", Gtmp);
+  if (state_.write_gradient)
+  {
+    //   per-particle gradient(log(psi)) (pset.G)
+    Gtmp.resize(nparticles, ndim);
+    for (size_t p = 0; p < nparticles; ++p)
+      for (size_t d = 0; d < ndim; ++d)
+        Gtmp(p, d) = (WLog::PsiVal)pset.G[p][d];
+    bar.collect("G", Gtmp);
+  }
+  if (state_.write_laplacian)
+  {
   //   per-particle laplacian(log(psi)) (pset.L)
   Ltmp.resize(nparticles);
   for (size_t p = 0; p < nparticles; ++p)
     Ltmp(p) = (WLog::PsiVal)pset.L[p];
   bar.collect("L", Ltmp);
+  }
   bar.resetCollect();
 
   // collect integer walker properties
