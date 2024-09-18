@@ -46,7 +46,6 @@ RadialJastrowBuilder::RadialJastrowBuilder(Communicate* comm, ParticleSet& targe
   TypeOpt      = "unknown";
   Jastfunction = "unknown";
   SpinOpt      = "no";
-  ndimOpt      = 3;
 }
 
 RadialJastrowBuilder::RadialJastrowBuilder(Communicate* comm, ParticleSet& target)
@@ -57,7 +56,6 @@ RadialJastrowBuilder::RadialJastrowBuilder(Communicate* comm, ParticleSet& targe
   TypeOpt      = "unknown";
   Jastfunction = "unknown";
   SpinOpt      = "no";
-  ndimOpt      = 3;
 }
 
 // helper method for dealing with functor incompatible with Open Boundaries
@@ -157,7 +155,7 @@ WaveFunctionComponent* RadialJastrowBuilder::createJ2(xmlNodePtr cur)
 
   XMLAttrString input_name(cur, "name");
   std::string j2name = input_name.empty() ? "J2_" + Jastfunction : input_name;
-  size_t ndim = ndimOpt;
+  size_t ndim = targetPtcl.Lattice.ndim;
   SpeciesSet& species(targetPtcl.getSpeciesSet());
   int taskid = is_manager() ? getGroupID() : -1;
   auto* J2   = new J2OrbitalType(j2name, targetPtcl, taskid, ndim=ndim);
@@ -227,8 +225,7 @@ WaveFunctionComponent* RadialJastrowBuilder::createJ2(xmlNodePtr cur)
 #if OHMMS_DIM == 1
         RealType dim_factor = 1.0 / (OHMMS_DIM + 1);
 #else
-        //RealType dim_factor = (ia == ib) ? 1.0 / (ndim + 1) : 1.0 / (ndim - 1);
-        RealType dim_factor = (ia == ib) ? 0.5 / (ndim - 1) : 1.0 / (ndim - 1);
+        RealType dim_factor = (ia == ib) ? 1.0 / (ndim + 1) : 1.0 / (ndim - 1);
 #endif
         cusp = -2 * qq * red_mass * dim_factor;
       }
@@ -513,7 +510,6 @@ WaveFunctionComponent* RadialJastrowBuilder::buildComponent(xmlNodePtr cur)
   aAttrib.add(TypeOpt, "type");
   aAttrib.add(Jastfunction, "function");
   aAttrib.add(SpinOpt, "spin");
-  aAttrib.add(ndimOpt, "ndim");
   aAttrib.put(cur);
   tolower(NameOpt);
   tolower(TypeOpt);

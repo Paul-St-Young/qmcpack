@@ -49,8 +49,6 @@ private:
   std::string Jastfunction;
   /// \xmla{jastrow,spin}
   std::string SpinOpt;
-  /// \xmla{jastrow,ndim}
-  size_t ndimOpt;
   ///particle set for source particle
   ParticleSet* SourcePtcl;
 
