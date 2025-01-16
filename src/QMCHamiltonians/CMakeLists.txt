@@ -42,6 +42,7 @@ set(HAMSRCS
     HarmonicExternalPotential.cpp
     GridExternalPotential.cpp
     MoirePotential.cpp
+    CosinePotential.cpp
     StaticStructureFactor.cpp
     OrbitalImages.cpp
     SpinDensity.cpp
