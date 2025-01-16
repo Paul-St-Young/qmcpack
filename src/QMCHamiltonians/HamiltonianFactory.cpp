@@ -40,6 +40,7 @@
 #include "QMCHamiltonians/HarmonicExternalPotential.h"
 #include "QMCHamiltonians/GridExternalPotential.h"
 #include "QMCHamiltonians/MoirePotential.h"
+#include "QMCHamiltonians/CosinePotential.h"
 #include "QMCHamiltonians/StaticStructureFactor.h"
 #include "QMCHamiltonians/SpinDensity.h"
 #include "QMCHamiltonians/MagDensity.h"
@@ -189,6 +190,17 @@ bool HamiltonianFactory::build(xmlNodePtr cur)
         hs->put(element);
         hs->get(app_log());
         app_log() << "   moire potential is physical: " << physical << std::endl;
+        app_log() << std::endl;
+        targetH->addOperator(std::move(hs), potName, physical);
+      }
+      if (potType == "cospot")
+      {
+        bool physical = false;
+        if (estType == "physical") physical = true;
+        std::unique_ptr<CosinePotential> hs = std::make_unique<CosinePotential>(targetPtcl);
+        hs->put(element);
+        hs->get(app_log());
+        app_log() << "   cosine potential is physical: " << physical << std::endl;
         app_log() << std::endl;
         targetH->addOperator(std::move(hs), potName, physical);
       }
