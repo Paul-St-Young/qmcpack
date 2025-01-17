@@ -19,7 +19,7 @@ namespace qmcplusplus
 class CosinePotential : public OperatorBase
 {
 public:
-  CosinePotential(ParticleSet& P)
+  CosinePotential(ParticleSet& P) : myP(P)
   {
     setEnergyDomain(POTENTIAL);
     oneBodyQuantumDomain(P);
@@ -36,6 +36,7 @@ public:
 private:
   RealType vq;
   TinyVector<RealType, 3> qvec;
+  ParticleSet& myP;
 };
 } // qmcplusplus
 #endif

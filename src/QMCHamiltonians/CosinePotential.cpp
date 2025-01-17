@@ -34,7 +34,18 @@ bool CosinePotential::put(xmlNodePtr cur)
   attrib.add(vq, "vq");
   attrib.add(qvec, "qvec");
   attrib.put(cur);
-  // TODO: check that qvec is valid
+  auto sc = myP.getSimulationCell();
+  auto cell = sc.getLattice();
+  auto gidx = cell.k_unit(qvec);
+  for (size_t l=0;l<gidx.size();l++)
+  {
+    if (std::abs(std::round(gidx[l])-gidx[l]) > 1e-6)
+    {
+      std::ostringstream msg;
+      msg << " invalid qvec input " << gidx << " - not integer" << std::endl;
+      throw std::runtime_error(msg.str());
+    }
+  }
   return true;
 }
 
@@ -42,7 +53,7 @@ bool CosinePotential::get(std::ostream& os) const
 {
   os << "External cosine potential" << std::endl;
   os << "  vq = " <<  vq << " Ha" << std::endl;
-  os << "  qvec = " <<  qvec << " 1/Bohe" << std::endl;
+  os << "  qvec = " <<  qvec << " 1/Bohr" << std::endl;
   return true;
 }
 
