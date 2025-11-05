@@ -318,7 +318,7 @@ public:
             hess           = du * outerProduct(displ[jat], displ[jat]);
             hess[0] += uij;
             hess[4] += uij;
-            hess[8] += uij ? ndim > 2 : 0;
+            hess[8] += (ndim > 2) ? uij : 0;
             AIJ(jat, iat) = hess;
             Amat(iat, iat) += hess;
             Amat(jat, jat) += hess;
@@ -437,7 +437,7 @@ public:
         hess = (du / myTable.getTempDists()[j]) * outerProduct(myTable.getTempDispls()[j], myTable.getTempDispls()[j]);
         hess[0] += uij;
         hess[4] += uij;
-        hess[8] += uij ? ndim > 2 : 0;
+        hess[8] += (ndim > 2) ? uij : 0;
         HessType dA = hess - AIJ(iat, j);
         Amat(iat, iat) += dA;
         Amat(j, j) += dA;
@@ -457,7 +457,7 @@ public:
         hess = (du / myTable.getTempDists()[j]) * outerProduct(myTable.getTempDispls()[j], myTable.getTempDispls()[j]);
         hess[0] += uij;
         hess[4] += uij;
-        hess[8] += uij ? ndim > 2 : 0;
+        hess[8] += (ndim > 2) ? uij : 0;
         HessType dA = hess - AIJ(iat, j);
         Amat(iat, iat) += dA;
         Amat(j, j) += dA;
@@ -651,7 +651,7 @@ public:
             hess           = du * op;
             hess[0] += uij;
             hess[4] += uij;
-            hess[8] += uij ? ndim > 2 : 0;
+            hess[8] += (ndim > 2) ? uij : 0;
             Amat(iat, iat) += hess;
             Amat(jat, jat) += hess;
             Amat(iat, jat) -= hess;
@@ -673,7 +673,7 @@ public:
               Xmat(la, iat, jat) -= (derivsju[prm][1] / dist[jat]) * op;
               Xmat(la, iat, jat)[0] -= derivsju[prm][0];
               Xmat(la, iat, jat)[4] -= derivsju[prm][0];
-              Xmat(la, iat, jat)[8] -= derivsju[prm][0] ? ndim > 2 : 0;
+              Xmat(la, iat, jat)[8] -= (ndim > 2) ? derivsju[prm][0] : 0;
               Xmat(la, jat, iat) += Xmat(la, iat, jat);
               Xmat(la, iat, iat) -= Xmat(la, iat, jat);
               Xmat(la, jat, jat) -= Xmat(la, iat, jat);
