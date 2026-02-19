@@ -59,7 +59,8 @@ MomentumEstimator::Return_t MomentumEstimator::evaluate(ParticleSet& P)
     eval_e2iphi(nk, kdotp.data(), phases_vPos[s].data(0), phases_vPos[s].data(1));
   }
 
-  std::fill_n(nofK.begin(), nk, RealType(0));
+  std::fill_n(nk_up.begin(), nk, RealType(0));
+  std::fill_n(nk_dn.begin(), nk, RealType(0));
   for (int i = 0; i < np; ++i)
   {
     for (int ik = 0; ik < nk; ++ik)
@@ -74,24 +75,31 @@ MomentumEstimator::Return_t MomentumEstimator::evaluate(ParticleSet& P)
       const RealType* restrict phases_s      = phases.data(1);
       const RealType* restrict phases_vPos_c = phases_vPos[s].data(0);
       const RealType* restrict phases_vPos_s = phases_vPos[s].data(1);
-      RealType* restrict nofK_here           = nofK.data();
-#pragma omp simd aligned(nofK_here, phases_c, phases_s, phases_vPos_c, phases_vPos_s : QMC_SIMD_ALIGNMENT)
+      RealType* restrict nk_spin             = (i < P.last(0)) ? nk_up.data() : nk_dn.data();
+#pragma omp simd aligned(nk_spin, phases_c, phases_s, phases_vPos_c, phases_vPos_s : QMC_SIMD_ALIGNMENT)
       for (int ik = 0; ik < nk; ++ik)
-        nofK_here[ik] += (phases_c[ik] * phases_vPos_c[ik] - phases_s[ik] * phases_vPos_s[ik]) * ratio_c -
-            (phases_s[ik] * phases_vPos_c[ik] + phases_c[ik] * phases_vPos_s[ik]) * ratio_s;
+      {
+        RealType val =  (phases_c[ik] * phases_vPos_c[ik] - phases_s[ik] * phases_vPos_s[ik]) * ratio_c -
+               (phases_s[ik] * phases_vPos_c[ik] + phases_c[ik] * phases_vPos_s[ik]) * ratio_s;
+        nk_spin[ik] += val;
+      }
     }
   }
   if (hdf5_out)
   {
     RealType w = t_walker_->Weight * norm_nofK;
     int j      = my_index_;
-    for (int ik = 0; ik < nofK.size(); ++ik, ++j)
-      P.Collectables[j] += w * nofK[ik];
+    for (int ik = 0; ik < nk_up.size(); ++ik, ++j)
+      P.Collectables[j] += w * nk_up[ik];
+    for (int ik = 0; ik < nk_dn.size(); ++ik, ++j)
+      P.Collectables[j] += w * nk_dn[ik];
   }
   else
   {
-    for (int ik = 0; ik < nofK.size(); ++ik)
-      nofK[ik] *= norm_nofK;
+    for (int ik = 0; ik < nk_up.size(); ++ik)
+      nk_up[ik] *= norm_nofK;
+    for (int ik = 0; ik < nk_dn.size(); ++ik)
+      nk_dn[ik] *= norm_nofK;
   }
 
   return 0.0;
@@ -104,7 +112,7 @@ void MomentumEstimator::registerCollectables(std::vector<ObservableHelper>& h5de
     //descriptor for the data, 1-D data
     std::vector<int> ng(1);
     //add nofk
-    ng[0] = nofK.size();
+    ng[0] = nk_up.size() + nk_dn.size();
     h5desc.emplace_back(hdf_path{"nofk"});
     auto& h5o = h5desc.back();
     h5o.set_dimensions(ng, my_index_);
@@ -119,15 +127,22 @@ void MomentumEstimator::addObservables(PropertySetType& plist, BufferType& colle
   if (hdf5_out)
   {
     my_index_ = collectables.size();
-    collectables.add(nofK.begin(), nofK.end());
+    collectables.add(nk_up.begin(), nk_up.end());
+    collectables.add(nk_dn.begin(), nk_dn.end());
   }
   else
   {
     my_index_ = plist.size();
-    for (int i = 0; i < nofK.size(); i++)
+    for (int i = 0; i < nk_up.size(); i++)
     {
       std::stringstream sstr;
-      sstr << "nofk_" << i;
+      sstr << "nk_up_" << i;
+      int id = plist.add(sstr.str());
+    }
+    for (int i = 0; i < nk_dn.size(); i++)
+    {
+      std::stringstream sstr;
+      sstr << "nk_dn_" << i;
       int id = plist.add(sstr.str());
     }
   }
@@ -138,7 +153,10 @@ void MomentumEstimator::setObservables(PropertySetType& plist)
 {
   if (!hdf5_out)
   {
-    copy(nofK.begin(), nofK.end(), plist.begin() + my_index_);
+    int j = my_index_;
+    copy(nk_up.begin(), nk_up.end(), plist.begin() + j);
+    j += nk_up.size();
+    copy(nk_dn.begin(), nk_dn.end(), plist.begin() + j);
   }
 }
 
@@ -146,7 +164,10 @@ void MomentumEstimator::setParticlePropertyList(PropertySetType& plist, int offs
 {
   if (!hdf5_out)
   {
-    copy(nofK.begin(), nofK.end(), plist.begin() + my_index_ + offset);
+    int j = my_index_ + offset;
+    copy(nk_up.begin(), nk_up.end(), plist.begin() + j);
+    j += nk_up.size();
+    copy(nk_dn.begin(), nk_dn.end(), plist.begin() + j);
   }
 }
 
@@ -323,7 +344,8 @@ bool MomentumEstimator::putSpecial(xmlNodePtr cur, ParticleSet& elns, bool rootN
     }
     fout.close();
   }
-  nofK.resize(kPoints.size());
+  nk_up.resize(kPoints.size());
+  nk_dn.resize(kPoints.size());
   kdotp.resize(kPoints.size());
   vPos.resize(M);
   phases.resize(kPoints.size());
@@ -351,7 +373,8 @@ void MomentumEstimator::resize(const std::vector<PosType>& kin, const int Min)
 {
   //copy kpoints
   kPoints = kin;
-  nofK.resize(kin.size());
+  nk_up.resize(kin.size());
+  nk_dn.resize(kin.size());
   kdotp.resize(kPoints.size());
   phases.resize(kPoints.size());
   //M

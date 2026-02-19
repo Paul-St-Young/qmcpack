@@ -66,7 +66,8 @@ public:
   ///weight of k-points (make use of symmetry)
   std::vector<int> kWeights;
   ///nofK
-  aligned_vector<RealType> nofK;
+  aligned_vector<RealType> nk_up;
+  aligned_vector<RealType> nk_dn;
   /// print to hdf5 or scalar.dat
   bool hdf5_out;
   PosType twist;
