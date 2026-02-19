@@ -33,7 +33,7 @@ public:
    *
    * Use the elns.DistTables to evaluate the pair correlation functions.
    */
-  PairCorrEstimator(ParticleSet& elns, std::string& sources);
+  PairCorrEstimator(ParticleSet& elns, const std::string& sources, ParticleSet& src_inp);
 
   std::string getClassName() const override { return "PairCorrEstimator"; }
   void resetTargetParticleSet(ParticleSet& P) override;
@@ -83,6 +83,10 @@ private:
   const int d_aa_ID_;
   // number of spatial dimensions
   const size_t ndim;
+  // keep original "source"
+  ParticleSet& src;
+  // keep original "source" list
+  std::vector<std::string> slist;
   /////data
   //Matrix<RealType> gof_r;
   ///prefix of each gof_r

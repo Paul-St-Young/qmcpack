@@ -16,18 +16,20 @@
 
 #include "PairCorrEstimator.h"
 #include "Particle/DistanceTable.h"
+#include "Particle/ParticleSetPool.h"
 #include "OhmmsData/AttributeSet.h"
 #include "Utilities/SimpleParser.h"
 #include <set>
 
 namespace qmcplusplus
 {
-PairCorrEstimator::PairCorrEstimator(ParticleSet& elns, std::string& sources)
+PairCorrEstimator::PairCorrEstimator(ParticleSet& elns, const std::string& sources, ParticleSet& src_inp)
     : Dmax(10.),
       Delta(0.5),
       num_species(2),
       d_aa_ID_(elns.addTable(elns, DTModes::NEED_FULL_TABLE_ON_HOST_AFTER_DONEPBYP)),
-      ndim(elns.getLattice().ndim)
+      ndim(elns.getLattice().ndim),
+      src(src_inp)
 {
   update_mode_.set(COLLECTABLE, 1);
   num_species = elns.groups();
@@ -64,7 +66,8 @@ PairCorrEstimator::PairCorrEstimator(ParticleSet& elns, std::string& sources)
     }
 
   // source-target tables
-  std::vector<std::string> slist, dlist;
+  /*
+  std::vector<std::string> dlist;
   const int ntables = elns.getNumDistTables();
   for (int k = 0; k < ntables; ++k)
     if (elns.getName() != elns.getDistTable(k).get_origin().getName())
@@ -87,6 +90,15 @@ PairCorrEstimator::PairCorrEstimator(ParticleSet& elns, std::string& sources)
   other_ids.resize(others_sorted.size());
   other_offsets.resize(others_sorted.size());
   copy(others_sorted.begin(), others_sorted.end(), other_ids.begin());
+  */
+  parsewords(sources.c_str(), slist);
+  other_ids.assign(slist.size(), -1);
+  other_offsets.resize(slist.size());
+  for (int k = 0; k < slist.size(); ++k)
+  {
+    other_ids[k]    = elns.addTable(src,
+                     DTModes::NEED_FULL_TABLE_ON_HOST_AFTER_DONEPBYP);
+  }
   int toff = gof_r_prefix.size();
   for (int k = 0; k < other_ids.size(); ++k)
   {
@@ -95,13 +107,14 @@ PairCorrEstimator::PairCorrEstimator(ParticleSet& elns, std::string& sources)
     other_offsets[k] = toff;
     const SpeciesSet& species(t.get_origin().getSpeciesSet());
     int ng = species.size();
-    for (int i = 0; i < ng; ++i)
-    {
-      std::ostringstream os;
-      os << "gofr_" << t.getName() << "_" << species.speciesName[i];
-      gof_r_prefix.push_back(os.str());
-    }
-    toff += ng;
+    for (int j = 0; j < num_species; ++j)
+      for (int i = 0; i < ng; ++i)
+      {
+        std::ostringstream os;
+        os << "gofr_" << t.getName() << j << "_" << species.speciesName[i];
+        gof_r_prefix.push_back(os.str());
+      }
+    toff += ng * num_species;
   }
 }
 
@@ -142,16 +155,20 @@ PairCorrEstimator::Return_t PairCorrEstimator::evaluate(ParticleSet& P)
     const ParticleSet::ParticleIndex& gid(d1.get_origin().GroupID);
     int koff        = other_offsets[k];
     RealType overNI = 1.0 / d1.centers();
+    const int ng     = d1.get_origin().groups();
     for (int iat = 0; iat < d1.targets(); ++iat)
     {
       const auto& dist = d1.getDistRow(iat);
-      for (int j = 0; j < d1.centers(); ++j)
+      const int egid = P.GroupID[iat]; // electron species (e.g. spin up/down)
+      for (int jat = 0; jat < d1.centers(); ++jat)
       {
-        const RealType r = dist[j];
+        const RealType r = dist[jat];
         if (r < Dmax)
         {
-          int toff = (gid[j] + koff) * NumBins;
-          int loc  = static_cast<int>(DeltaInv * r);
+          const int ion_gid = gid[jat];
+          const int chan    = koff + egid * ng + ion_gid;
+          const int toff    = chan * NumBins;
+          const int loc     = static_cast<int>(DeltaInv * r);
           collectables[toff + loc + my_index_] += norm_factor(0, loc) * overNI;
         }
       }
@@ -294,13 +311,13 @@ void PairCorrEstimator::set_norm_factor()
   std::cout << std::fixed;
   for( int j=0; j<norm_factor.size2(); j++ )
     {
-	std::cout << std::setw(4) << j;
-	std::cout << std::setw(8) << std::setprecision(4) << j*Delta;
-	for( int i=0; i<norm_factor.size1(); i++ )
-	  {
-	    std::cout << "  " << std::setw(10) << std::setprecision(4) << norm_factor(i,j);
-	  }
-	std::cout << std::endl;
+       std::cout << std::setw(4) << j;
+       std::cout << std::setw(8) << std::setprecision(4) << j*Delta;
+       for( int i=0; i<norm_factor.size1(); i++ )
+         {
+           std::cout << "  " << std::setw(10) << std::setprecision(4) << norm_factor(i,j);
+         }
+       std::cout << std::endl;
     }
   std::cout << std::endl;
   */
