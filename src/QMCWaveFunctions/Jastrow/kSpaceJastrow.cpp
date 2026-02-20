@@ -243,9 +243,9 @@ kSpaceJastrow::kSpaceJastrow(const ParticleSet& ions,
       OneBodyID(onebodyid),
       TwoBodyID(twobodyid)
 {
-  Prefactor     = 1.0 / elecs.getLattice().Volume;
   NumIonSpecies = 0;
   num_elecs     = elecs.getTotalNum();
+  Prefactor     = 1.0 / num_elecs;
   for (int iat = 0; iat < ions.getTotalNum(); iat++)
     NumIonSpecies = std::max(NumIonSpecies, ions.GroupID[iat] + 1);
   if (oneBodyCutoff > 0.0)
