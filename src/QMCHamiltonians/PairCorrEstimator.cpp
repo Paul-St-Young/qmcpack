@@ -29,8 +29,10 @@ PairCorrEstimator::PairCorrEstimator(ParticleSet& elns, const std::string& sourc
       num_species(2),
       d_aa_ID_(elns.addTable(elns, DTModes::NEED_FULL_TABLE_ON_HOST_AFTER_DONEPBYP)),
       ndim(elns.getLattice().ndim),
-      src(src_inp)
+      src(src_inp),
+      lei(false)
 {
+  lei = (sources != "e"); // add electron-ion g(r)
   update_mode_.set(COLLECTABLE, 1);
   num_species = elns.groups();
   n_vec.resize(num_species, 0);
@@ -65,6 +67,8 @@ PairCorrEstimator::PairCorrEstimator(ParticleSet& elns, const std::string& sourc
       ++npairs;
     }
 
+  if (lei)
+  {
   // source-target tables
   /*
   std::vector<std::string> dlist;
@@ -116,6 +120,7 @@ PairCorrEstimator::PairCorrEstimator(ParticleSet& elns, const std::string& sourc
       }
     toff += ng * num_species;
   }
+  }
 }
 
 void PairCorrEstimator::resetTargetParticleSet(ParticleSet& P) {}
@@ -149,6 +154,8 @@ PairCorrEstimator::Return_t PairCorrEstimator::evaluate(ParticleSet& P)
       }
     }
   }
+  if (lei)
+  {
   for (int k = 0; k < other_ids.size(); ++k)
   {
     const auto& d1(P.getDistTableAB(other_ids[k]));
@@ -173,6 +180,7 @@ PairCorrEstimator::Return_t PairCorrEstimator::evaluate(ParticleSet& P)
         }
       }
     }
+  }
   }
   return 0.0;
 }

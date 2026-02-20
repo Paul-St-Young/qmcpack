@@ -87,6 +87,7 @@ private:
   ParticleSet& src;
   // keep original "source" list
   std::vector<std::string> slist;
+  bool lei;
   /////data
   //Matrix<RealType> gof_r;
   ///prefix of each gof_r
