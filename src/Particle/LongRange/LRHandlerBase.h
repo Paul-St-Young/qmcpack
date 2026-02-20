@@ -106,7 +106,7 @@ struct LRHandlerBase
       }
       // re-evaluate
       vr = evaluate(rcut, 1./rcut);
-      vr_edge = evaluate(rcut/edge, 1./rcut/edge);
+      vr_edge = evaluate(rcut*edge, 1./(rcut*edge));
       ltoo_small = vr > tol;
       ltoo_large = vr_edge < tol;
       if (ltoo_small)
