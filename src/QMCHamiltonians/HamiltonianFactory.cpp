@@ -253,9 +253,22 @@ bool HamiltonianFactory::build(xmlNodePtr cur)
       }
       else if (potType == "gofr")
       {
-        std::unique_ptr<PairCorrEstimator> apot = std::make_unique<PairCorrEstimator>(targetPtcl, sourceInp);
+        if (sourceInp != targetInp)
+        {
+        // find source particle set
+        auto spit(ptclPool.find(sourceInp));
+        if (spit == ptclPool.end())
+        {
+          APP_ABORT("Unknown source \"" + sourceInp + "\" for gofr.");
+        }
+        std::unique_ptr<PairCorrEstimator> apot = std::make_unique<PairCorrEstimator>(targetPtcl, sourceInp, *spit->second);
         apot->put(element);
         targetH->addOperator(std::move(apot), potName, false);
+        } else {
+        std::unique_ptr<PairCorrEstimator> apot = std::make_unique<PairCorrEstimator>(targetPtcl, sourceInp, targetPtcl);
+        apot->put(element);
+        targetH->addOperator(std::move(apot), potName, false);
+        }
       }
       else if (potType == "vecgofr")
       {
