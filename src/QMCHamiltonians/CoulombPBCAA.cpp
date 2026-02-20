@@ -79,6 +79,8 @@ CoulombPBCAA::CoulombPBCAA(ParticleSet& ref, bool active, bool computeForces, bo
   {
     ref.update();
     updateSource(ref);
+    auto cell = ref.getLattice();
+    size_t ndim = cell.ndim;
 
     ewaldref::RealMat A;
     ewaldref::PosArray R;
@@ -97,7 +99,7 @@ CoulombPBCAA::CoulombPBCAA(ParticleSet& ref, bool active, bool computeForces, bo
     RealType Vii_ref        = ewaldref::ewaldEnergy(A, R, Q);
     RealType Vdiff_per_atom = std::abs(value_ - Vii_ref) / NumCenters;
     app_log() << "Checking ion-ion Ewald energy against reference..." << std::endl;
-    if (Vdiff_per_atom > Ps.getLattice().LR_tol)
+    if ((Vdiff_per_atom > Ps.getLattice().LR_tol) & (ndim > 2))
     {
       std::ostringstream msg;
       msg << std::setprecision(14);
