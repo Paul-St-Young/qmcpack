@@ -52,7 +52,9 @@ J1OrbitalSoA<FT>::J1OrbitalSoA(const std::string& obj_name, const ParticleSet& i
       Nions(ions.getTotalNum()),
       Nelec(els.getTotalNum()),
       NumGroups(ions.groups()),
-      Ions(ions)
+      Ions(ions),
+      ndim(els.getLattice().ndim),
+      lapfac(ndim - RealType(1))
 {
   if (my_name_.empty())
     throw std::runtime_error("J1OrbitalSoA object name cannot be empty!");

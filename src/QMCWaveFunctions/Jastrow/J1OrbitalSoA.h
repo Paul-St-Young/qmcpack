@@ -136,11 +136,10 @@ class J1OrbitalSoA : public WaveFunctionComponent
   inline valT accumulateGL(const valT* restrict du, const valT* restrict d2u, const DisplRow& displ, posT& grad) const
   {
     valT lap(0);
-    constexpr valT lapfac = OHMMS_DIM - RealType(1);
     //#pragma omp simd reduction(+:lap)
     for (int jat = 0; jat < Nions; ++jat)
       lap += d2u[jat] + lapfac * du[jat];
-    for (int idim = 0; idim < OHMMS_DIM; ++idim)
+    for (int idim = 0; idim < ndim; ++idim)
     {
       const valT* restrict dX = displ.data(idim);
       valT s                  = valT();
@@ -188,6 +187,10 @@ class J1OrbitalSoA : public WaveFunctionComponent
 protected:
   ///container for the unique Jastrow functions
   std::vector<std::unique_ptr<FT>> J1UniqueFunctors;
+  ///number of spatial dimensions
+  const size_t ndim;
+  ///laplacian prefactor
+  const valT lapfac;
 
 public:
   J1OrbitalSoA(const std::string& obj_name, const ParticleSet& ions, ParticleSet& els, bool use_offload);
@@ -362,7 +365,6 @@ public:
       std::vector<TinyVector<RealType, 3>> derivs(NumVars);
 
       constexpr RealType cone(1);
-      constexpr RealType lapfac(OHMMS_DIM - cone);
       const size_t ns = d_table.sources();
       const size_t nt = P.getTotalNum();
 
@@ -679,7 +681,7 @@ public:
       valT grad_component = (d2U[isrc] - dU[isrc] * rinv);
       valT lapl_component = d3U[isrc] + 2 * rinv * grad_component;
 
-      for (int idim = 0; idim < OHMMS_DIM; idim++)
+      for (int idim = 0; idim < ndim; idim++)
       {
         grad_grad[idim][iat] += dr[idim] * dr * rinv * rinv * grad_component;
         grad_grad[idim][iat][idim] += rinv * dU[isrc];
