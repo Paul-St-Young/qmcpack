@@ -69,8 +69,11 @@ void kSpaceJastrow::setupGvecs(RealType kc, std::vector<PosType>& gvecs, bool us
   gvecs.clear();
   int maxIndex[OHMMS_DIM];
   for (int i = 0; i < OHMMS_DIM; i++)
+  {
     maxIndex[i] =
         2 + (int)std::floor(std::sqrt(dot(Ions.getLattice().a(i), Ions.getLattice().a(i))) * kc / (2.0 * M_PI));
+    if (i >= ndim) maxIndex[i] = 0;
+  }
   std::vector<ComplexType> rho_G(NumIonSpecies);
 #if OHMMS_DIM == 3
   for (int i = 0; i <= maxIndex[0]; i++)
@@ -241,7 +244,8 @@ kSpaceJastrow::kSpaceJastrow(const ParticleSet& ions,
       OptimizableObject("kspace_" + elecs.getName()),
       Ions(ions),
       OneBodyID(onebodyid),
-      TwoBodyID(twobodyid)
+      TwoBodyID(twobodyid),
+      ndim(elecs.getLattice().ndim)
 {
   NumIonSpecies = 0;
   num_elecs     = elecs.getTotalNum();
@@ -777,7 +781,7 @@ std::unique_ptr<WaveFunctionComponent> kSpaceJastrow::makeClone(ParticleSet& tqp
 /** constructor to initialize Ions
  */
 kSpaceJastrow::kSpaceJastrow(const ParticleSet& ions)
-    : WaveFunctionComponent(ions.getName()), OptimizableObject("kspace_" + ions.getName()), Ions(ions)
+    : WaveFunctionComponent(ions.getName()), OptimizableObject("kspace_" + ions.getName()), Ions(ions), ndim(3)
 {}
 
 void kSpaceJastrow::copyFrom(const kSpaceJastrow& old)

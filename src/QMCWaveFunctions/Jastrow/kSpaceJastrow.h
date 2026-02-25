@@ -210,6 +210,8 @@ private:
   void copyFrom(const kSpaceJastrow& old);
   std::vector<int> TwoBodyVarMap;
   std::vector<int> OneBodyVarMap;
+  ///number of spatial dimensions
+  const size_t ndim;
 };
 } // namespace qmcplusplus
 #endif
