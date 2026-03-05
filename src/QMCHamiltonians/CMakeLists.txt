@@ -42,6 +42,7 @@ set(HAMSRCS
     HarmonicExternalPotential.cpp
     GridExternalPotential.cpp
     MoirePotential.cpp
+    ScreenedDefect.cpp
     CosinePotential.cpp
     StaticStructureFactor.cpp
     OrbitalImages.cpp
