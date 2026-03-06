@@ -9,7 +9,7 @@ class ScreenedDefect : public OperatorBase
 {
 public:
   ScreenedDefect(ParticleSet& P, ParticleSet& sP)
-  : source(sP) {
+  : itab(P.addTable(sP)), ndefect(sP.getTotalNum()), nelec(P.getTotalNum()), mimg(100), dgate(1.0) {
     setEnergyDomain(POTENTIAL);
     oneBodyQuantumDomain(P);
   };
@@ -23,8 +23,9 @@ public:
   std::string getClassName() const override {return "moire";};
   // required overrides end ----
 private:
+  const int itab;
+  int ndefect, nelec, mimg;
   RealType dgate;
-  ParticleSet& source;
 };
 } // qmcplusplus
 #endif
