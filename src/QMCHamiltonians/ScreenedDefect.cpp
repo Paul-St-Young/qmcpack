@@ -9,15 +9,16 @@ ScreenedDefect::Return_t ScreenedDefect::evaluate(ParticleSet& P)
 {
   value_ = 0.0;
   const auto& d_ab(P.getDistTableAB(itab));
-  for (int i=0; i<ndefect; i++)
+  for (int i=0; i<nelec; i++)
   {
     const auto& dists = d_ab.getDistRow(i);
-    for (int j=0; j<nelec; j++)
+    for (int j=0; j<ndefect; j++)
     {
       auto r = dists[j];
       auto r2 = r*r;
       for (int m=-mimg;m<=mimg;m++)
       {
+        // !!!! HACK: hard-code repulsive defect
         value_ += std::pow(-1, m)/std::sqrt(
           r2 + (2*dgate*m)*(2*dgate*m)
         );
@@ -39,8 +40,10 @@ bool ScreenedDefect::put(xmlNodePtr cur)
 bool ScreenedDefect::get(std::ostream& os) const
 {
   os << "Screened defect potential" << std::endl;
-  os << "  dgate = " <<  dgate << " bohr*" << std::endl;
-  os << "  mimg  = " <<  mimg << std::endl;
+  os << "  ndefect = " <<  ndefect << std::endl;
+  os << "  nelec   = " <<  nelec << std::endl;
+  os << "  dgate   = " <<  dgate << " bohr*" << std::endl;
+  os << "  mimg    = " <<  mimg << std::endl;
   return true;
 }
 

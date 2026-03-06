@@ -20,7 +20,7 @@ public:
   std::unique_ptr<OperatorBase> makeClone(ParticleSet& P, TrialWaveFunction& psi) override;
   // ---- begin required overrides
   void resetTargetParticleSet(ParticleSet& P) override {APP_ABORT("not implemented");};
-  std::string getClassName() const override {return "moire";};
+  std::string getClassName() const override {return "defect";};
   // required overrides end ----
 private:
   const int itab;
