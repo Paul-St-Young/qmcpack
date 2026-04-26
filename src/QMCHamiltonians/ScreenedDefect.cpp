@@ -1,6 +1,7 @@
 #include "ScreenedDefect.h"
 #include "OhmmsData/AttributeSet.h"
 #include "Particle/DistanceTable.h"
+#include "LongRange/Screen2DKernel.h"
 
 #include <cmath>
 #include <vector>
@@ -34,10 +35,9 @@ bool ScreenedDefect::put(xmlNodePtr cur)
   attrib.put(cur);
   vconst = 0.5*nelec * (-1.0*2*M_PI*dgate/area);
 
-  // Tabulate r * V_screened(r) on a linear grid in [0, 5*dgate].
-  // V_screened(r) = sum_{m=-mimg}^{mimg} (-1)^m / sqrt(r^2 + (2*m*dgate)^2)
-  // r * V_screened(r) -> 1 as r -> 0 (m=0 term dominates).
-  rmax_spline      = 5.0 * dgate;
+  // Tabulate r * V_screened(r) on a linear grid in [0, rmax_spline].
+  // Spline to accelerate evaluate.
+  rmax_spline      = 50.0 * dgate;
   const int ngrid  = 1024;
   myGrid           = std::make_shared<LinearGrid<RealType>>();
   myGrid->set(0.0, rmax_spline, ngrid);
@@ -46,21 +46,14 @@ bool ScreenedDefect::put(xmlNodePtr cur)
   for (int ig = 1; ig < ngrid - 1; ++ig)
   {
     const RealType r = (*myGrid)[ig];
-    RealType s       = 1.0 / r; // m = 0
-    for (int m = 1; m <= mimg; ++m)
-    {
-      const RealType d    = 2.0 * m * dgate;
-      const RealType sign = (m & 1) ? -1.0 : 1.0;
-      s += 2.0 * sign / std::sqrt(r * r + d * d); // +/-m symmetry
-    }
-    rv[ig] = r * s;
+    rv[ig]           = r * screen2DKernel<RealType>(r, dgate, mimg);
   }
-  rv[0]         = 2.0 * rv[1] - rv[2]; // linear extrapolation; ~ 1.0
-  rv[ngrid - 1] = 0.0;                 // force tail to zero at rmax
-
+  // enforce limits
+  rv[0]         = 1.0;
+  rv[ngrid - 1] = 0.0;
+  const RealType deriv0  = 0.0;
   rVspline               = std::make_shared<OneDimCubicSpline<RealType>>(myGrid->makeClone(), rv);
-  const RealType deriv0  = (rv[1] - rv[0]) / ((*myGrid)[1] - (*myGrid)[0]);
-  rVspline->spline(0, deriv0, ngrid - 1, 0.0);
+  rVspline->spline(0, deriv0, ngrid - 1, deriv0);
   return true;
 }
 
