@@ -1,7 +1,11 @@
 #ifndef QMCPLUSPLUS_SCREENED_DEFECT_H
 #define QMCPLUSPLUS_SCREENED_DEFECT_H
 
+#include <memory>
+
 #include "QMCHamiltonians/OperatorBase.h"
+#include "Numerics/OneDimCubicSpline.h"
+#include "Numerics/OneDimGridBase.h"
 
 namespace qmcplusplus
 {
@@ -9,7 +13,7 @@ class ScreenedDefect : public OperatorBase
 {
 public:
   ScreenedDefect(ParticleSet& P, ParticleSet& sP)
-  : itab(P.addTable(sP)), ndefect(sP.getTotalNum()), nelec(P.getTotalNum()), mimg(100), dgate(1.0), charge(1.0), vconst(0.0) {
+  : itab(P.addTable(sP)), ndefect(sP.getTotalNum()), nelec(P.getTotalNum()), mimg(100), dgate(1.0), charge(1.0), vconst(0.0), rmax_spline(0.0) {
     setEnergyDomain(POTENTIAL);
     oneBodyQuantumDomain(P);
     area = P.getLattice().Volume / P.getLattice().R(2, 2);
@@ -34,6 +38,9 @@ private:
   int ndefect, nelec, mimg;
   RealType dgate, charge, vconst, area;
   RealType target_charge;
+  RealType rmax_spline;
+  std::shared_ptr<LinearGrid<RealType>> myGrid;
+  std::shared_ptr<OneDimCubicSpline<RealType>> rVspline;
 };
 } // qmcplusplus
 #endif
