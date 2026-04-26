@@ -37,7 +37,7 @@ bool ScreenedDefect::put(xmlNodePtr cur)
 
   // Tabulate r * V_screened(r) on a linear grid in [0, rmax_spline].
   // Spline to accelerate evaluate.
-  rmax_spline      = 50.0 * dgate;
+  rmax_spline      = 15.0 * dgate;
   const int ngrid  = 1024;
   myGrid           = std::make_shared<LinearGrid<RealType>>();
   myGrid->set(0.0, rmax_spline, ngrid);
@@ -51,9 +51,9 @@ bool ScreenedDefect::put(xmlNodePtr cur)
   // enforce limits
   rv[0]         = 1.0;
   rv[ngrid - 1] = 0.0;
-  const RealType deriv0  = 0.0;
+  const RealType deriv0  = (rv[1] - rv[0]) / ((*myGrid)[1] - (*myGrid)[0]);
   rVspline               = std::make_shared<OneDimCubicSpline<RealType>>(myGrid->makeClone(), rv);
-  rVspline->spline(0, deriv0, ngrid - 1, deriv0);
+  rVspline->spline(0, deriv0, ngrid - 1, 0.0);
   return true;
 }
 
