@@ -33,7 +33,8 @@ bool ScreenedDefect::put(xmlNodePtr cur)
   attrib.add(dgate, "dgate");
   attrib.add(mimg, "max_image");
   attrib.put(cur);
-  vconst = 0.5*nelec * (-1.0*2*M_PI*dgate/area);
+  const RealType vsr_k0 = 2 * M_PI * dgate;
+  vconst = -(nelec*target_charge) * (ndefect*charge) * vsr_k0 / area;
 
   // Tabulate r * V_screened(r) on a linear grid in [0, rmax_spline].
   // Spline to accelerate evaluate.
