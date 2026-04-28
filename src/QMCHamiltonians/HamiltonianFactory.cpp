@@ -40,6 +40,7 @@
 #include "QMCHamiltonians/HarmonicExternalPotential.h"
 #include "QMCHamiltonians/GridExternalPotential.h"
 #include "QMCHamiltonians/MoirePotential.h"
+#include "QMCHamiltonians/ScreenedDefect.h"
 #include "QMCHamiltonians/CosinePotential.h"
 #include "QMCHamiltonians/StaticStructureFactor.h"
 #include "QMCHamiltonians/SpinDensity.h"
@@ -190,6 +191,21 @@ bool HamiltonianFactory::build(xmlNodePtr cur)
         hs->put(element);
         hs->get(app_log());
         app_log() << "   moire potential is physical: " << physical << std::endl;
+        app_log() << std::endl;
+        targetH->addOperator(std::move(hs), potName, physical);
+      }
+      if (potType == "defect")
+      {
+        // find source particle set
+        auto spit(ptclPool.find(sourceInp));
+        if (spit == ptclPool.end())
+          APP_ABORT("Unknown source \"" + sourceInp + "\" for defect.");
+        bool physical = false;
+        if (estType == "physical") physical = true;
+        std::unique_ptr<ScreenedDefect> hs = std::make_unique<ScreenedDefect>(targetPtcl, *spit->second);
+        hs->put(element);
+        hs->get(app_log());
+        app_log() << "   defect potential is physical: " << physical << std::endl;
         app_log() << std::endl;
         targetH->addOperator(std::move(hs), potName, physical);
       }

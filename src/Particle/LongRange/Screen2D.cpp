@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 
 #include "Particle/LongRange/Screen2D.h"
+#include "Particle/LongRange/Screen2DKernel.h"
 
 namespace qmcplusplus
 {
@@ -68,25 +69,8 @@ void Screen2D::fillFk(const KContainer& KList)
 }
 
 Screen2D::mRealType Screen2D::evaluate(mRealType r, mRealType rinv) const
-{ // Robert E. Throckmorton and Oskar Vafek PRB 86, 115447 (2012).
-  // Agnes Valenti et al. 2307.15119 (S68) -> (S77)
-  mRealType vsr = 0.0;
-  if (r < dgate/4) // sum images in real space
-  { // eq. (29)
-    int msr_img = 10*mimg;
-    for (int m=-msr_img;m<=msr_img;m++)
-      vsr += std::pow(-1, m)/std::sqrt(
-        r*r + (2*dgate*m)*(2*dgate*m)
-      );
-    return vsr;
-  }
-  const mRealType pre = 2.0/dgate;
-  const mRealType arg = r/(2*dgate);
-  for (int k=0;k<=mimg;k++)
-  { // eq. (B4)
-    vsr += std::cyl_bessel_k(0, (2*k+1)*M_PI*arg);
-  }
-  return pre*vsr;
+{
+  return screen2DKernel<mRealType>(r, dgate, mimg);
 }
 
 Screen2D::mRealType Screen2D::findRcut()

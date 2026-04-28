@@ -16,6 +16,7 @@ set(UTEST_DIR ${CMAKE_CURRENT_BINARY_DIR})
 set(COULOMB_SRCS test_coulomb_pbcAB.cpp test_coulomb_pbcAB_ewald.cpp test_coulomb_pbcAA.cpp
                  test_coulomb_pbcAA_ewald.cpp test_EwaldRef.cpp test_NonLocalECPotential.cpp)
 set(EWALD2D_SRCS test_ewald2d.cpp test_ewald_quasi2d.cpp)
+set(SCREENED_DEFECT_SRCS test_ScreenedDefect.cpp)
 set(FORCE_SRCS test_force.cpp test_force_ewald.cpp test_stress.cpp test_spacewarp.cpp)
 set(HAM_SRCS
     test_bare_kinetic.cpp
@@ -56,7 +57,7 @@ foreach(fname C.BFD.xml Na.BFD.xml so_ecp_test.xml C.ccECP.xml N.ccECP.xml Be.BF
   maybe_symlink(${qmcpack_SOURCE_DIR}/tests/pseudopotentials_for_tests/${fname} ${UTEST_DIR}/${fname})
 endforeach()
 
-foreach(CATEGORY coulomb force ham ewald2d)
+foreach(CATEGORY coulomb force ham ewald2d screened_defect)
   set(UTEST_EXE test_${SRC_DIR}_${CATEGORY})
   set(UTEST_NAME deterministic-unit_${UTEST_EXE})
   string(TOUPPER "${CATEGORY}_SRCS" SOURCE_FILE_VAR_NAME)
