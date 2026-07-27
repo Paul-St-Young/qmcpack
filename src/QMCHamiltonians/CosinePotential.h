@@ -36,6 +36,7 @@ public:
 private:
   RealType vq;
   TinyVector<RealType, 3> qvec;
+  bool spinsus = false;
   ParticleSet& myP;
 };
 } // qmcplusplus

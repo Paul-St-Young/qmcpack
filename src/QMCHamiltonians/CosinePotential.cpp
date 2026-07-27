@@ -18,11 +18,14 @@ namespace qmcplusplus
 CosinePotential::Return_t CosinePotential::evaluate(ParticleSet& P)
 {
   value_ = 0.0;
-  const size_t Nelec = P.getTotalNum();
-  for (size_t iel = 0; iel < Nelec; iel++)
+  for (int ig = 0; ig < P.groups(); ig++)
   {
-    const auto& r = (P.getActivePtcl() == iel) ? P.activeR(iel) : P.R[iel];
-    value_ += 2*vq*std::cos(dot(qvec, r));
+    const RealType sign = (spinsus && ig == 1) ? -1.0 : 1.0;
+    for (int iel = P.first(ig); iel < P.last(ig); iel++)
+    {
+      const auto& r = (P.getActivePtcl() == iel) ? P.activeR(iel) : P.R[iel];
+      value_ += sign*2*vq*std::cos(dot(qvec, r));
+    }
   }
   return value_;
 }
@@ -33,6 +36,7 @@ bool CosinePotential::put(xmlNodePtr cur)
   OhmmsAttributeSet attrib;
   attrib.add(vq, "vq");
   attrib.add(qvec, "qvec");
+  attrib.add(spinsus, "spinsus");
   attrib.put(cur);
   auto sc = myP.getSimulationCell();
   auto cell = sc.getLattice();
@@ -54,6 +58,7 @@ bool CosinePotential::get(std::ostream& os) const
   os << "External cosine potential" << std::endl;
   os << "  vq = " <<  vq << " Ha" << std::endl;
   os << "  qvec = " <<  qvec << " 1/Bohr" << std::endl;
+  os << "  spinsus = " << spinsus << std::endl;
   return true;
 }
 
