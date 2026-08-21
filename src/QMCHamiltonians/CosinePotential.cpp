@@ -20,7 +20,7 @@ CosinePotential::Return_t CosinePotential::evaluate(ParticleSet& P)
   value_ = 0.0;
   for (int ig = 0; ig < P.groups(); ig++)
   {
-    const RealType sign = (spinsus && ig == 1) ? 1.0 : -1.0;
+    const RealType sign = spinsus ? ((ig == 1) ? 1.0 : -1.0) : 1.0;
     for (int iel = P.first(ig); iel < P.last(ig); iel++)
     {
       const auto& r = (P.getActivePtcl() == iel) ? P.activeR(iel) : P.R[iel];
